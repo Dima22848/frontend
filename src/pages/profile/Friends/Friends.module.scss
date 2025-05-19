@@ -1,0 +1,87 @@
+.friendsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+  }
+  
+  h2 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .friendsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  /* ==== Карточка друга ==== */
+  .friendCard {
+    display: flex;
+    align-items: center;
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+  }
+  
+  /* ==== Фото + Имя ==== */
+  .friendProfile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .friendAvatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .friendName {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+  
+  /* ==== Кнопки в столбик ==== */
+  .friendActions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  
+  .friendActions button {
+    width: 160px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+  
+  .viewProfile {
+    background: #007bff;
+    color: white;
+  }
+  
+  .sendMessage {
+    background: #28a745;
+    color: white;
+  }
+  
+  .removeFriend {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .friendActions button:hover {
+    opacity: 0.8;
+  }
+  

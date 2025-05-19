@@ -1,0 +1,60 @@
+.reviewsContainer {
+    padding: 20px;
+  }
+  
+  .pageTitle {
+    text-align: center; /* Заголовок по центру */
+    margin-bottom: 30px;
+  }
+  
+  .reviewsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .reviewItem {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex-direction: column; /* Элементы отзыва теперь идут вертикально */
+  }
+  
+  .alcoholInfo {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .alcoholImage {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  
+  .alcoholDetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .alcoholName {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .price {
+    font-size: 16px;
+    color: #777;
+  }
+  
+  .reviewText {
+    margin-top: 10px;  /* Добавлен отступ сверху для текста отзыва */
+    font-size: 16px;
+  }
+  
