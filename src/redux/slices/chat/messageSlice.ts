@@ -41,10 +41,15 @@ const messageSlice = createSlice({
 
             state.messages[chat].push(action.payload); 
         },
+
+        clearMessages: (state, action: PayloadAction<number>) => {
+        delete state.messages[action.payload];
+        },
+
     },
 });
 
-export const { setMessages, addMessage } = messageSlice.actions;
+export const { setMessages, addMessage, clearMessages } = messageSlice.actions;
 export default messageSlice.reducer;
 
 

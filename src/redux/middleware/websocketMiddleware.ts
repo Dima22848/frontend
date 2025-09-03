@@ -23,7 +23,8 @@ export const websocketMiddleware: Middleware = store => {
         }
 
         currentChatId = chatId;
-        socket = new WebSocket(`${WEBSOCKET_URL}${chatId}/`);
+        const token = localStorage.getItem('token');
+        socket = new WebSocket(`${WEBSOCKET_URL}${chatId}/?token=${token}`);
 
         socket.onopen = () => {
             console.log(`WebSocket подключен к чату ${chatId}.`);

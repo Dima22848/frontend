@@ -1,17 +1,24 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReviewsAsync } from "../../../redux/slices/main/reviewsSlice";
+import { fetchReviewsAsync, deleteReviewAsync } from "../../../redux/slices/main/reviewsSlice";
+import { loadAlcoholItems, AlcoholItemData } from "../../../redux/slices/main/alcoholSlice";
+import { addItemToBasket } from "../../../redux/slices/main/basketSlice";
 import { RootState, AppDispatch } from "../../../redux/store";
 import styles from "./AlcoholItem.module.scss";
-import { AlcoholItemData } from "../../../redux/slices/main/alcoholSlice";
 
+
+// Маппинг content_type строго по БД (проверь цифры в админке)
 const contentTypeMapping: Record<string, number> = {
   pivo: 13,
-  cognac: 14,
-  wine: 17,
+  cognak: 14,
+  vino: 17,
   vodka: 18,
 };
+
+const hiddenFields = [
+  "id", "name", "price", "image", "alcoholtype", "slug", "reviews_count", "created_at", "field_verbose_names",
+];
 
 const AlcoholItem = () => {
   const { type, slug } = useParams<{ type: string; slug: string }>();
@@ -19,22 +26,49 @@ const AlcoholItem = () => {
   const dispatch = useDispatch<AppDispatch>();
   const alcoholItems = useSelector((state: RootState) => state.alcohol.items) as AlcoholItemData[];
   const reviews = useSelector((state: RootState) => state.reviews.reviews);
-  
-  const alcohol = alcoholItems.find((item) => item.slug === slug);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
 
+  const alcohol = alcoholItems.find((item) => item.slug === slug);
   const content_type = type ? contentTypeMapping[type] || 0 : 0;
 
+
+  // Загружаем товар если обновили страницу
+  useEffect(() => {
+    if (type && (!alcoholItems.length || !alcohol)) {
+      dispatch(loadAlcoholItems(type));
+    }
+  }, [type, dispatch, alcoholItems.length, alcohol, slug]);
+
+  // Загружаем отзывы
   useEffect(() => {
     if (alcohol && type) {
-      const object_id = alcohol.id;
-      console.log("content_type:", content_type, "object_id:", object_id);
-      dispatch(fetchReviewsAsync({ content_type, object_id }));
+      dispatch(fetchReviewsAsync({ content_type, object_id: alcohol.id }));
     }
-  }, [alcohol, type, dispatch]);
+  }, [alcohol, type, content_type, dispatch]);
 
-  if (!alcohol) {
-    return <p>Алкоголь не найден</p>;
-  }
+  // Удалить отзыв
+  const handleDelete = (id: number) => {
+    dispatch(deleteReviewAsync({ reviewId: id, content_type, object_id: alcohol!.id }));
+  };
+
+  // === Добавление в корзину (только redux/localStorage) ===
+  const handleAddToBasket = () => {
+    if (!alcohol || !type) return;
+    dispatch(addItemToBasket({
+      content_type: contentTypeMapping[type],
+      object_id: alcohol.id,
+      quantity: 1,
+      alcohol: {
+        id: alcohol.id,
+        name: alcohol.name,
+        price: alcohol.price,
+        image: alcohol.image,
+      }
+    }));
+  };
+
+
+  if (!alcohol) return <p>Алкоголь не найден</p>;
 
   const renderStars = (rating: number) => (
     <div className={styles.reviewRating}>
@@ -43,6 +77,18 @@ const AlcoholItem = () => {
       ))}
     </div>
   );
+
+  const fieldVerbose = alcohol.field_verbose_names || {};
+  const characteristics = Object.entries(alcohol)
+    .filter(([key, value]) =>
+      !hiddenFields.includes(key) &&
+      fieldVerbose[key] &&
+      value !== null &&
+      value !== undefined &&
+      value !== ""
+    );
+
+  const latestReviews = reviews.slice(-4).reverse();
 
   return (
     <div className={styles.container}>
@@ -54,43 +100,64 @@ const AlcoholItem = () => {
         <div className={styles.details}>
           <h1>{alcohol.name}</h1>
           <p className={styles.price}>{alcohol.price} грн</p>
-          <p className={styles.volume}>Объем: {alcohol.volume}</p>
-          <button className={styles.addToCart}>Добавить в корзину</button>
+          {alcohol.volume && <p className={styles.volume}>Объем: {alcohol.volume}</p>}
+          {/* === Кнопка корзины === */}
+          <button className={styles.addToCart} onClick={handleAddToBasket}>
+            Добавить в корзину
+          </button>
         </div>
       </div>
       <h2>Характеристики</h2>
       <div className={styles.characteristics}>
-        {Object.entries(alcohol).map(([key, value]) => {
-          if (!["id", "name", "price", "image", "alcoholtype"].includes(key) && value) {
-            return (
-              <p key={key}>
-                <strong>{key}: </strong> {value}
-              </p>
-            );
-          }
-          return null;
-        })}
+        {characteristics.map(([key, value]) => (
+          <p key={key}>
+            <strong>{fieldVerbose[key]}:</strong> {value}
+          </p>
+        ))}
       </div>
       <h2>Отзывы</h2>
       <div className={styles.reviews}>
-        {reviews.slice(0, 4).map((review) => (
+        {latestReviews.map((review) => (
           <div key={review.id} className={styles.review}>
-            <span className={styles.userIcon}>👤</span>
-            <div className={styles.reviewContent}>
-              <div className={styles.reviewHeader}>
-                <div className={styles.userWithRating}>
-                  <p className={styles.userName}>{review.author}</p>
-                  {renderStars(review.rate)}
-                </div>
-                <p className={styles.reviewDate}>{new Date(review.created_at).toLocaleString()}</p>
+            <div className={styles.userWithRating}>
+              {typeof review.author === "object" && review.author !== null && "avatar" in review.author && review.author.avatar ? (
+                <img
+                  src={review.author.avatar}
+                  alt={review.author.nickname}
+                  className={styles.avatar}
+                />
+              ) : (
+                <span className={styles.userIcon}>👤</span>
+              )}
+              <div>
+                <p className={styles.userName}>
+                  {typeof review.author === "object" && review.author !== null && "nickname" in review.author
+                    ? review.author.nickname
+                    : review.author}
+                </p>
+                {renderStars(review.rate)}
               </div>
+              {currentUser && typeof review.author === "object" &&
+                review.author.nickname === currentUser.nickname && (
+                <button className={styles.deleteBtn} onClick={() => handleDelete(review.id)}>
+                  Удалить
+                </button>
+              )}
+            </div>
+            <div className={styles.reviewContent}>
               <p className={styles.reviewText}>{review.text}</p>
+              <p className={styles.reviewDate}>{new Date(review.created_at).toLocaleString()}</p>
             </div>
           </div>
         ))}
       </div>
       <div className={styles.reviewButtons}>
-        <button onClick={() => navigate("/send-review")}>Оставить отзыв</button>
+        <button onClick={() => navigate(
+          `/${type}/${slug}/send-review`,
+          { state: { alcohol, type } }
+        )}>
+          Оставить отзыв
+        </button>
         <button onClick={() => navigate(`/${type}/${slug}/reviews`, { state: { content_type, object_id: alcohol.id } })}>Все отзывы</button>
       </div>
     </div>
@@ -106,46 +173,92 @@ export default AlcoholItem;
 
 
 
-
-
-
-
 // import { useParams, useNavigate } from "react-router-dom";
-// import { useSelector } from "react-redux";
-// import { RootState } from "../../../redux/store";
+// import { useEffect } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchReviewsAsync, deleteReviewAsync } from "../../../redux/slices/main/reviewsSlice";
+// import { loadAlcoholItems } from "../../../redux/slices/main/alcoholSlice";
+// import { addItemToBasket } from "../../../redux/slices/main/basketSlice"; // 👈 импортируем!
+// import { RootState, AppDispatch } from "../../../redux/store";
 // import styles from "./AlcoholItem.module.scss";
 // import { AlcoholItemData } from "../../../redux/slices/main/alcoholSlice";
 
+// const contentTypeMapping: Record<string, number> = {
+//   pivo: 13,
+//   cognak: 14,
+//   vino: 17,
+//   vodka: 18,
+// };
+
+// const hiddenFields = [
+//   "id", "name", "price", "image", "alcoholtype", "slug", "reviews_count", "created_at", "field_verbose_names",
+// ];
+
 // const AlcoholItem = () => {
-//     const { type, slug: slug } = useParams<{ type: string; slug: string }>();
-//     const navigate = useNavigate();
-//     const alcoholItems = useSelector((state: RootState) => state.alcohol.items) as AlcoholItemData[];
-//     const alcohol = alcoholItems.find((item) => item.slug === slug);
-    
-    
+//   const { type, slug } = useParams<{ type: string; slug: string }>();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch<AppDispatch>();
+//   const alcoholItems = useSelector((state: RootState) => state.alcohol.items) as AlcoholItemData[];
+//   const reviews = useSelector((state: RootState) => state.reviews.reviews);
+//   const currentUser = useSelector((state: RootState) => state.auth.user);
+
+//   const alcohol = alcoholItems.find((item) => item.slug === slug);
+//   const content_type = type ? contentTypeMapping[type] || 0 : 0;
+
+//   // Фикс F5
+//   useEffect(() => {
+//     if (type && (!alcoholItems.length || !alcohol)) {
+//       dispatch(loadAlcoholItems(type));
+//     }
+//   }, [type, dispatch, alcoholItems.length, alcohol, slug]);
+
+//   // Грузим отзывы
+//   useEffect(() => {
+//     if (alcohol && type) {
+//       const object_id = alcohol.id;
+//       dispatch(fetchReviewsAsync({ content_type, object_id }));
+//     }
+//   }, [alcohol, type, content_type, dispatch]);
+
+//   const handleDelete = (id: number) => {
+//     dispatch(deleteReviewAsync({ reviewId: id, content_type, object_id: alcohol!.id }));
+//   };
+
+//   // === ДОБАВЛЕНИЕ В КОРЗИНУ ===
+//   const handleAddToBasket = () => {
+//     if (!alcohol) return;
+//     // Собираем нужный объект для корзины
+//     dispatch(addItemToBasket({
+//       content_type: contentTypeMapping[alcohol.type], // например, 13 для пива
+//       object_id: alcohol.id,
+//       quantity: 1,
+//     }));
+//   };
 
 //   if (!alcohol) {
 //     return <p>Алкоголь не найден</p>;
 //   }
 
-//   const fakeReviews = [
-//     {
-//       id: 1,
-//       user: "Иван Петров",
-//       date: "24 января 2025",
-//       time: "23:03",
-//       rating: 4,
-//       text: "Очень хороший вкус, особенно в сочетании с мясом.",
-//     },
-//     {
-//       id: 2,
-//       user: "Мария Смирнова",
-//       date: "20 февраля 2025",
-//       time: "18:45",
-//       rating: 5,
-//       text: "Отличное качество, рекомендую!",
-//     },
-//   ];
+//   const renderStars = (rating: number) => (
+//     <div className={styles.reviewRating}>
+//       {[...Array(5)].map((_, i) => (
+//         <span key={i} className={i < rating ? styles.starFilled : styles.starEmpty}>★</span>
+//       ))}
+//     </div>
+//   );
+
+//   const fieldVerbose = alcohol.field_verbose_names || {};
+//   const characteristics = Object.entries(alcohol)
+//     .filter(([key, value]) =>
+//       !hiddenFields.includes(key) &&
+//       fieldVerbose[key] &&
+//       value !== null &&
+//       value !== undefined &&
+//       value !== ""
+//     );
+
+//   // Берём последние 4 комментария и переворачиваем их (последние сверху)
+//   const latestReviews = reviews.slice(-4).reverse();
 
 //   return (
 //     <div className={styles.container}>
@@ -158,60 +271,97 @@ export default AlcoholItem;
 //           <h1>{alcohol.name}</h1>
 //           <p className={styles.price}>{alcohol.price} грн</p>
 //           <p className={styles.volume}>Объем: {alcohol.volume}</p>
-//           <button className={styles.addToCart}>Добавить в корзину</button>
+//           {/* === КНОПКА КОРЗИНЫ === */}
+//           <button
+//             className={styles.addToCart}
+//             onClick={handleAddToBasket}
+//           >
+//             Добавить в корзину
+//           </button>
 //         </div>
 //       </div>
 //       <h2>Характеристики</h2>
 //       <div className={styles.characteristics}>
-//         {Object.entries(alcohol).map(([key, value]) => {
-//           if (
-//             !["id", "name", "price", "image", "alcoholtype"].includes(key) &&
-//             value
-//           ) {
-//             return (
-//               <p key={key}>
-//                 <strong>{key}: </strong> {value}
-//               </p>
-//             );
-//           }
-//           return null;
-//         })}
+//         {characteristics.map(([key, value]) => (
+//           <p key={key}>
+//             <strong>{fieldVerbose[key]}:</strong> {value}
+//           </p>
+//         ))}
 //       </div>
 //       <h2>Отзывы</h2>
 //       <div className={styles.reviews}>
-//         {fakeReviews.map((review) => (
+//         {latestReviews.map((review) => (
 //           <div key={review.id} className={styles.review}>
-//             <span className={styles.userIcon}>👤</span>
-//             <div className={styles.reviewContent}>
-//               <div className={styles.reviewHeader}>
-//                 <p className={styles.userName}>{review.user}</p>
-//                 <p className={styles.reviewDate}>
-//                   {review.date} {review.time}
+//             <div className={styles.userWithRating}>
+//               {typeof review.author === "object" && review.author !== null && "avatar" in review.author && review.author.avatar ? (
+//                 <img
+//                   src={review.author.avatar}
+//                   alt={review.author.nickname}
+//                   className={styles.avatar}
+//                 />
+//               ) : (
+//                 <span className={styles.userIcon}>👤</span>
+//               )}
+
+//               <div>
+//                 <p className={styles.userName}>
+//                   {typeof review.author === "object" && review.author !== null && "nickname" in review.author
+//                     ? review.author.nickname
+//                     : review.author}
 //                 </p>
+//                 {renderStars(review.rate)}
 //               </div>
-//               <div className={styles.reviewRating}>
-//                 {[...Array(5)].map((_, i) =>
-//                   i < review.rating ? (
-//                     <span key={i} className={styles.starFilled}>★</span>
-//                   ) : (
-//                     <span key={i} className={styles.starEmpty}>☆</span>
-//                   )
-//                 )}
-//               </div>
+
+//               {currentUser && typeof review.author === "object" &&
+//                 review.author.nickname === currentUser.nickname && (
+//                 <button className={styles.deleteBtn} onClick={() => handleDelete(review.id)}>
+//                   Удалить
+//                 </button>
+//               )}
+//             </div>
+//             <div className={styles.reviewContent}>
 //               <p className={styles.reviewText}>{review.text}</p>
+//               <p className={styles.reviewDate}>{new Date(review.created_at).toLocaleString()}</p>
 //             </div>
 //           </div>
 //         ))}
 //       </div>
 //       <div className={styles.reviewButtons}>
-//         <button onClick={() => navigate("/send-review")}>
+//         <button onClick={() => navigate(
+//           `/${type}/${slug}/send-review`,
+//           { state: { alcohol, type } }
+//         )}>
 //           Оставить отзыв
 //         </button>
-//         <button onClick={() => navigate("/reviews")}>Посмотреть все отзывы</button>
+//         <button onClick={() => navigate(`/${type}/${slug}/reviews`, { state: { content_type, object_id: alcohol.id } })}>Все отзывы</button>
 //       </div>
 //     </div>
 //   );
 // };
 
 // export default AlcoholItem;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

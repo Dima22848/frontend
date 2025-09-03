@@ -1,79 +1,112 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrdersPaginatedThunk, resetOrders } from "../../../redux/slices/main/basketSlice";
+import { RootState, AppDispatch } from "../../../redux/store";
 import styles from "./BuyHistory.module.scss";
+import OrderCard from "../../../components/basket/OrderCard/OrderCard";
 
-const purchaseHistory = [
-  {
-    id: 1,
-    items: [
-      {
-        id: 101,
-        alcoholName: "Вино Красное",
-        alcoholImage: "https://via.placeholder.com/150",
-        quantity: 2,
-        price: 500,
-      },
-      {
-        id: 102,
-        alcoholName: "Виски Шотландский",
-        alcoholImage: "https://via.placeholder.com/150",
-        quantity: 1,
-        price: 1200,
-      },
-    ],
-  },
-  {
-    id: 2,
-    items: [
-      {
-        id: 103,
-        alcoholName: "Коньяк Армянский",
-        alcoholImage: "https://via.placeholder.com/150",
-        quantity: 3,
-        price: 1500,
-      },
-    ],
-  },
-];
+const ITEMS_PER_ORDER = 4;  // сколько товаров отображать в одной карточке заказа
 
 const BuyHistory = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { orders, loadingOrders, errorOrders, ordersPage, ordersHasMore } = useSelector(
+    (state: RootState) => state.basket
+  );
+
+  // Первый запрос — сброс + получение первой страницы
+  useEffect(() => {
+    dispatch(resetOrders());
+    dispatch(fetchOrdersPaginatedThunk({ page: 1 }));
+    // eslint-disable-next-line
+  }, [dispatch]);
+
+  // Подгрузить следующую страницу
+  const loadNextPage = useCallback(() => {
+    if (!loadingOrders && ordersHasMore) {
+      dispatch(fetchOrdersPaginatedThunk({ page: ordersPage + 1 }));
+    }
+  }, [dispatch, ordersPage, loadingOrders, ordersHasMore]);
+
+  if (loadingOrders && orders.length === 0)
+    return <div className={styles.historyContainer}>Загрузка истории заказов...</div>;
+
+  if (errorOrders)
+    return <div className={styles.historyContainer} style={{ color: "red" }}>Ошибка: {errorOrders}</div>;
+
+  if (!orders.length)
+    return <div className={styles.historyContainer}>У вас ещё нет заказов.</div>;
+
   return (
     <div className={styles.historyContainer}>
-      <h1 className={styles.pageTitle}>Моя история покупок</h1>
-
-      {purchaseHistory.map((purchase) => {
-        const totalAmount = purchase.items.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
-
-        return (
-          <div key={purchase.id} className={styles.purchaseBlock}>
-            {purchase.items.map((item) => (
-              <div key={item.id} className={styles.purchaseItem}>
-                <img
-                  src={item.alcoholImage}
-                  alt={item.alcoholName}
-                  className={styles.alcoholImage}
-                />
-                <div className={styles.alcoholDetails}>
-                  <h2 className={styles.alcoholName}>{item.alcoholName}</h2>
-                  <p className={styles.quantity}>Количество: {item.quantity}</p>
-                  <p className={styles.price}>Цена за единицу: {item.price} руб.</p>
-                  <p className={styles.totalItemPrice}>
-                    Всего: {item.price * item.quantity} руб.
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            <div className={styles.totalAmount}>
-              <h3>Общая сумма заказа: {totalAmount} руб.</h3>
-            </div>
-          </div>
-        );
-      })}
+      <h2 className={styles.pageTitle}>Моя история покупок</h2>
+      {orders.map((order: any) => (
+        <OrderCard order={order} key={order.id} itemsPerPage={ITEMS_PER_ORDER} />
+      ))}
+      {ordersHasMore && (
+        <div className={styles.loadMoreWrapper}>
+          <button
+            className={styles.loadMoreBtn}
+            onClick={loadNextPage}
+            disabled={loadingOrders}
+          >
+            {loadingOrders ? "Загрузка..." : "Показать ещё"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
 export default BuyHistory;
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchOrdersThunk } from "../../../redux/slices/main/basketSlice";
+// import { RootState, AppDispatch } from "../../../redux/store";
+// import styles from "./BuyHistory.module.scss";
+// import OrderCard from "../../../components/basket/OrderCard/OrderCard"; // импортируем компонент выше
+
+// const BuyHistory = () => {
+//   const dispatch = useDispatch<AppDispatch>();
+//   const orders = useSelector((state: RootState) => state.basket.orders);
+//   const loading = useSelector((state: RootState) => state.basket.loadingOrders);
+//   const error = useSelector((state: RootState) => state.basket.errorOrders);
+
+//   useEffect(() => {
+//     dispatch(fetchOrdersThunk());
+//   }, [dispatch]);
+
+//   if (loading) return <div className={styles.historyContainer}>Загрузка истории заказов...</div>;
+//   if (error) return <div className={styles.historyContainer} style={{ color: "red" }}>Ошибка: {error}</div>;
+//   if (!orders.length) return <div className={styles.historyContainer}>У вас ещё нет заказов.</div>;
+
+//   // обычная пагинация по заказам через backend
+//   return (
+//     <div className={styles.historyContainer}>
+//       <h2 className={styles.pageTitle}>Моя история покупок</h2>
+//       {orders.map((order: any) => (
+//         <OrderCard order={order} key={order.id} itemsPerPage={4} />
+//       ))}
+//     </div>
+//   );
+// };
+// export default BuyHistory;
+
+
+
+
+
+
+
+
+
+
