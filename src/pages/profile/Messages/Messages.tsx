@@ -10,6 +10,9 @@ import {
 } from "../../../redux/slices/chat/messageSlice";
 import styles from "./Messages.module.scss";
 import ChatControlPanel from "../../../components/chat/ChatControlPanel/ChatControlPanel";
+import { DJANGO_URL } from "../../../redux/api/baseApi";
+import { WEBSOCKET_URL } from "../../../redux/middleware/websocketMiddleware"
+
 
 interface Message {
   id: number;
@@ -47,7 +50,7 @@ const Messages: React.FC = () => {
         // Никнейм — делаем запрос на эндпоинт
         const token = localStorage.getItem("access_token");
         const response = await fetch(
-          `http://localhost:8000/api/chats/with-nickname/${slug}/`,
+          `${DJANGO_URL}/api/chats/with-nickname/${slug}/`,
           {
             method: "POST",
             headers: {
@@ -79,7 +82,7 @@ const Messages: React.FC = () => {
   // WebSocket — подключаемся только когда chatId есть
   useEffect(() => {
     if (!chatId) return;
-    socketRef.current = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chatId}/`);
+    socketRef.current = new WebSocket(`${WEBSOCKET_URL}/${chatId}/`);
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "new_message") {
@@ -143,7 +146,7 @@ const Messages: React.FC = () => {
 
     try {
       const token = localStorage.getItem("access_token");
-      const response = await fetch("http://localhost:8000/api/messages/", {
+      const response = await fetch(`${DJANGO_URL}/api/messages/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -252,7 +255,7 @@ const Messages: React.FC = () => {
                     src={
                       message.sender.image
                         ? message.sender.image.startsWith("/")
-                          ? `http://127.0.0.1:8000${message.sender.image}`
+                          ? `${DJANGO_URL}${message.sender.image}`
                           : message.sender.image
                         : "/default-avatar.png"
                     }
@@ -337,7 +340,7 @@ const Messages: React.FC = () => {
                     src={
                       message.sender.image
                         ? message.sender.image.startsWith("/")
-                          ? `http://127.0.0.1:8000${message.sender.image}`
+                          ? `${DJANGO_URL}${message.sender.image}`
                           : message.sender.image
                         : "/default-avatar.png"
                     }

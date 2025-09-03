@@ -43,12 +43,12 @@ const Friends = () => {
   if (!currentUser) return <p>Загрузка профиля...</p>;
   if (users.length === 0) return <p>Загрузка списка пользователей...</p>;
 
-  const friendsList = users.filter((user) => currentUser.friends.includes(user.id));
+  const friendsList = users.filter((user) => currentUser.friends?.includes(user.id));
   const friendRequests = users.filter(
     (user) =>
-      currentUser.followers.includes(user.id) &&
-      !currentUser.friends.includes(user.id) &&
-      !currentUser.ignored_requests.includes(user.id)
+      currentUser.followers?.includes(user.id) &&
+      !currentUser.friends?.includes(user.id) &&
+      !currentUser.ignored_requests?.includes(user.id)
   );
 
   const handleViewProfile = (userId: number) => {

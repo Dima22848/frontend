@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { OrderItemDTO, OrderResponse } from '../../slices/main/basketSlice';
+import { DJANGO_URL_API } from "../baseApi";  
 
-const baseUrl = 'http://localhost:8000';
+
 const getAuthHeaders = () => {
   const token = localStorage.getItem("access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -10,7 +11,7 @@ const getAuthHeaders = () => {
 // === Отправить заказ (checkout) ===
 export const checkoutOrder = async (items: OrderItemDTO[]): Promise<OrderResponse> => {
   const response = await axios.post(
-    `${baseUrl}/api/orders/`,
+    `${DJANGO_URL_API}/orders/`,
     { items },
     { headers: getAuthHeaders() }
   );
@@ -36,7 +37,7 @@ export const fetchOrders = async (
   });
 
   const response = await axios.get(
-    `${baseUrl}/api/orders/?${params.toString()}`,
+    `${DJANGO_URL_API}/orders/?${params.toString()}`,
     { headers: getAuthHeaders() }
   );
   return response.data;

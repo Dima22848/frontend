@@ -6,8 +6,10 @@ import { fetchUser } from "../../../redux/api/account/accountApi";
 import axios from "axios";
 import { updateUserProfile, updateUserAvatar } from "../../../redux/api/auth/authApi";
 import { setUser } from "../../../redux/slices/auth/authSlice";
+import { DJANGO_URL } from "../../../redux/api/baseApi";
 
-const defaultAvatar = "/images/default-avatar.png";
+
+const defaultAvatar = "/default/default-user.jfif";
 
 const Settings = () => {
   const authUser = useSelector((state: RootState) => state.auth.user);
@@ -85,7 +87,7 @@ const Settings = () => {
 
     try {
       await axios.post(
-        `http://127.0.0.1:8000/api/change-password/`,
+        `${DJANGO_URL}/api/change-password/`,
         {
           old_password: formData.old_password,
           new_password: formData.new_password,

@@ -9,6 +9,7 @@ import {
 } from "../../../redux/api/chat/chatApi";
 import FriendInviteForm from "../FriendInviteForm/FriendInviteForm";
 import styles from "./ChatParticipantsPanel.module.scss";
+import { DJANGO_URL } from "../../../redux/api/baseApi";
 
 interface ChatParticipant {
   id: number;
@@ -51,8 +52,8 @@ const ChatParticipantsPanel: React.FC<Props> = ({ chatId, participants, onClose 
                   <img
                     src={
                       participant.image
-                        ? `http://localhost:8000${participant.image}`
-                        : "/default-avatar.png"
+                        ? `${DJANGO_URL}${participant.image}`
+                        : "/default/default-avatar.jfif"
                     }
 
                     alt="avatar"

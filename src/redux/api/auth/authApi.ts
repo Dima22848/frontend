@@ -2,8 +2,7 @@ import axios from "axios";
 import { User } from "../../slices/auth/usersSlice";
 import { logout, setToken } from "../../slices/auth/authSlice";
 import store from "../../store";
-
-const API_BASE_URL = "http://localhost:8000/api";
+import { DJANGO_URL_API } from "../baseApi";  
 
 interface AuthResponse {
     access: string;
@@ -13,7 +12,7 @@ interface AuthResponse {
 // Вспомогательная функция обновления токена
 export const refreshAccessToken = async (refreshToken: string): Promise<string> => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
+        const response = await axios.post(`${DJANGO_URL_API}/token/refresh/`, {
             refresh: refreshToken,
         });
         return response.data.access;
@@ -58,7 +57,7 @@ export const loginUser = async (
     password: string
 ): Promise<AuthResponse> => {
     try {
-        const response = await axios.post<AuthResponse>(`${API_BASE_URL}/token/`, {
+        const response = await axios.post<AuthResponse>(`${DJANGO_URL_API}/token/`, {
             email,
             password,
         });
@@ -82,7 +81,7 @@ export const loginUser = async (
 
 export const fetchCurrentUser = async (token: string): Promise<User> => {
     return authorizedRequest(async (accessToken) => {
-        const response = await axios.get<User[]>(`${API_BASE_URL}/users/`, {
+        const response = await axios.get<User[]>(`${DJANGO_URL_API}/users/`, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -97,7 +96,7 @@ export const fetchCurrentUser = async (token: string): Promise<User> => {
 
 export const fetchUsers = async (token: string): Promise<User[]> => {
     return authorizedRequest(async (accessToken) => {
-        const response = await axios.get<User[]>(`${API_BASE_URL}/users/`, {
+        const response = await axios.get<User[]>(`${DJANGO_URL_API}/users/`, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -107,7 +106,7 @@ export const fetchUsers = async (token: string): Promise<User[]> => {
 
 export const registerUser = async (email: string, password: string) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/register/`, {
+        const response = await axios.post(`${DJANGO_URL_API}/register/`, {
             email,
             password,
         });
@@ -119,7 +118,7 @@ export const registerUser = async (email: string, password: string) => {
 
 const fetchMe = async (): Promise<User> => {
     return authorizedRequest(async (accessToken) => {
-        const response = await axios.get<User>(`${API_BASE_URL}/me/`, {
+        const response = await axios.get<User>(`${DJANGO_URL_API}/me/`, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         return response.data;
@@ -133,7 +132,7 @@ export const updateUserProfile = async (
 ): Promise<User> => {
     return authorizedRequest(async (accessToken) => {
         const response = await axios.patch<User>(
-            `${API_BASE_URL}/users/${userId}/`,
+            `${DJANGO_URL_API}/users/${userId}/`,
             updatedData,
             {
                 headers: {
@@ -152,7 +151,7 @@ export const updateUserAvatar = async (
 ): Promise<User> => {
   return authorizedRequest(async (accessToken) => {
     const response = await axios.patch<User>(
-      `${API_BASE_URL}/users/${userId}/`,
+      `${DJANGO_URL_API}/users/${userId}/`,
       formData,
       {
         headers: {

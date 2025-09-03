@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { DJANGO_URL_API } from "../baseApi";  
 
 export interface Review {
   id: number;
@@ -18,15 +19,13 @@ export interface Review {
   };
 }
 
-// URL API для отзывов
-const API_URL = 'http://127.0.0.1:8000/api/reviews/';
 
 // Загрузка отзывов по content_type и object_id
 export const fetchReviews = async (
   content_type: number,
   object_id: number
 ): Promise<Review[]> => {
-  const response = await axios.get(API_URL, {
+  const response = await axios.get(`${DJANGO_URL_API}/reviews/`, {
     params: {
       content_type,
       object_id,
@@ -38,7 +37,7 @@ export const fetchReviews = async (
 // Получить все отзывы текущего пользователя (Мои отзывы)
 export const fetchMyReviews = async (): Promise<Review[]> => {
   const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_URL}my/`, {
+  const response = await axios.get(`${DJANGO_URL_API}/reviews/my/`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -63,7 +62,7 @@ export const sendReview = async ({
   const token = localStorage.getItem('access_token');
 
   const response = await axios.post(
-    API_URL,
+    `${DJANGO_URL_API}/reviews/`,
     { content_type, object_id, text, rate },
     {
       headers: {
@@ -77,7 +76,7 @@ export const sendReview = async ({
 // Удаление отзыва по id
 export const deleteReview = async (reviewId: number): Promise<void> => {
   const token = localStorage.getItem('access_token');
-  await axios.delete(`${API_URL}${reviewId}/`, {
+  await axios.delete(`${DJANGO_URL_API}/reviews/${reviewId}/`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

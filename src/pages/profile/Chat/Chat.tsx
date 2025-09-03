@@ -5,6 +5,7 @@ import { useGetChatsQuery } from "../../../redux/api/chat/chatApi";
 import { useNavigate, Outlet } from "react-router-dom";
 import CreateGroupChatPanel from "../../../components/chat/CreateGroupChatPanel/CreateGroupChatPanel";
 import styles from "./Chat.module.scss";
+import { DJANGO_URL } from "../../../redux/api/baseApi";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const Chat = () => {
             let title = chat.name || "Групповой чат";
             let avatar = chat.display_image
               ? (chat.display_image.startsWith("/")
-                  ? `http://127.0.0.1:8000${chat.display_image}`
+                  ? `${DJANGO_URL}${chat.display_image}`
                   : chat.display_image)
               : "/default-avatar.png";
 
@@ -83,7 +84,7 @@ const Chat = () => {
                 title = interlocutor.nickname;
                 avatar = interlocutor.avatar
                   ? (interlocutor.avatar.startsWith("/")
-                      ? `http://127.0.0.1:8000${interlocutor.avatar}`
+                      ? `${DJANGO_URL}${interlocutor.avatar}`
                       : interlocutor.avatar)
                   : "/default-avatar.png";
               }

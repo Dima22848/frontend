@@ -1,8 +1,9 @@
 import { Middleware } from "@reduxjs/toolkit";
 import { addMessage } from "../slices/chat/messageSlice";
 import { updateChat } from "../slices/chat/chatSlice";
+import { DJANGO_URL } from "../api/baseApi";
 
-const WEBSOCKET_URL = "ws://127.0.0.1:8000/ws/chat/";
+export const WEBSOCKET_URL = "ws://alcoland-django-react.onrender.com/ws/chat/";
 
 // Интерфейс для WebSocket-действий
 interface WebSocketAction {

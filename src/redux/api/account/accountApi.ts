@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DJANGO_URL_API } from "../baseApi";  
 
 interface Account {
   id: number;
@@ -14,10 +15,11 @@ interface Account {
   extra_info?: string;
 }
 
+
 // Получить информацию о пользователе
 export const fetchUser = async (userId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/users/${userId}/`);
+    const response = await axios.get(`${DJANGO_URL_API}/users/${userId}/`);
     return response.data;
   } catch (error) {
     throw new Error("Не удалось загрузить данные пользователя");
@@ -27,7 +29,7 @@ export const fetchUser = async (userId: string) => {
 // Получить список друзей
 export const fetchFriends = async (userId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/users/${userId}/friends/`);
+    const response = await axios.get(`${DJANGO_URL_API}/users/${userId}/friends/`);
     return response.data;
   } catch (error) {
     throw new Error("Не удалось загрузить список друзей");
@@ -37,7 +39,7 @@ export const fetchFriends = async (userId: string) => {
 // Получить всех пользователей (добавлено)
 export const fetchUsers = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:8000/api/users/");
+    const response = await axios.get(`${DJANGO_URL_API}/users/`);
     return response.data;
   } catch (error) {
     throw new Error("Не удалось загрузить список пользователей");
@@ -49,7 +51,7 @@ export const addFriend = async (friendId: number) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/users/${friendId}/add_friend/`,
+      `${DJANGO_URL_API}/users/${friendId}/add_friend/`,
       {},
       {
         headers: {
@@ -68,7 +70,7 @@ export const ignoreRequest = async (userId: number) => {
   const token = localStorage.getItem("access_token");
   try {
     await axios.post(
-      `http://127.0.0.1:8000/api/users/${userId}/ignore_request/`,
+      `${DJANGO_URL_API}/users/${userId}/ignore_request/`,
       {},
       {
         headers: {
@@ -86,7 +88,7 @@ export const removeFriend = async (friendId: number) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/users/${friendId}/remove_friend/`,
+      `${DJANGO_URL_API}/users/${friendId}/remove_friend/`,
       {},
       {
         headers: {
@@ -105,7 +107,7 @@ export const follow = async (targetId: number) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/users/${targetId}/follow/`,
+      `${DJANGO_URL_API}/users/${targetId}/follow/`,
       {},
       {
         headers: {
@@ -125,7 +127,7 @@ export const unfollow = async (targetId: number) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/users/${targetId}/unfollow/`,
+      `${DJANGO_URL_API}/users/${targetId}/unfollow/`,
       {},
       {
         headers: {
@@ -144,7 +146,7 @@ export const removeFollower = async (followerId: number) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/users/${followerId}/remove_follower/`,
+      `${DJANGO_URL_API}/users/${followerId}/remove_follower/`,
       {},
       {
         headers: {

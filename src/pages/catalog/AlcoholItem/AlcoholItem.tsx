@@ -25,7 +25,7 @@ const AlcoholItem = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const alcoholItems = useSelector((state: RootState) => state.alcohol.items) as AlcoholItemData[];
-  const reviews = useSelector((state: RootState) => state.reviews.reviews);
+  const reviews = useSelector((state: RootState) => state.reviews.reviews || []);
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const alcohol = alcoholItems.find((item) => item.slug === slug);
@@ -88,7 +88,8 @@ const AlcoholItem = () => {
       value !== ""
     );
 
-  const latestReviews = reviews.slice(-4).reverse();
+  const latestReviews = Array.isArray(reviews) ? reviews.slice(-4).reverse() : [];
+
 
   return (
     <div className={styles.container}>

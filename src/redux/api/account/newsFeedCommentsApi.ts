@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { DJANGO_URL_API } from "../baseApi";  
 
 interface NewsFeedComment {
   id: number;
@@ -16,7 +17,7 @@ interface NewsFeedComment {
 export const newsFeedCommentsApi = createApi({
   reducerPath: 'newsFeedCommentsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://127.0.0.1:8000/api/',
+    baseUrl: DJANGO_URL_API,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("access_token");
       if (token) {

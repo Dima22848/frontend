@@ -1,9 +1,9 @@
 import axios from 'axios';
+import { DJANGO_URL_API } from "../baseApi";  
 
-const baseUrl = 'http://localhost:8000'
 
 // Функция для получения истории покупок
 export const fetchPurchaseHistory = async () => {
-  const response = await axios.get(`${baseUrl}/api/purchase-history`);
+  const response = await axios.get(`${DJANGO_URL_API}/purchase-history`);
   return response.data;
 };

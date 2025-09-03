@@ -260,7 +260,7 @@ const NewsFeedItem: React.FC<NewsFeedItemProps> = ({
     return (
       <div key={comment.id} className={styles.comment}>
         <div className={styles.commentHeader}>
-          <img src={author.image || "/images/default-user.jpg"} alt="User Avatar" className={styles.commentAuthorPhoto} />
+          <img src={author.image || "/default/default-user.jfif"} alt="User Avatar" className={styles.commentAuthorPhoto} />
           <div className={styles.commentInfo}>
             <span className={styles.commentAuthor}>
               {author.nickname || `Пользователь ${comment.profile_id}`}
@@ -287,7 +287,7 @@ const NewsFeedItem: React.FC<NewsFeedItemProps> = ({
   return (
     <div className={styles.post}>
       <div className={styles.postHeader}>
-        <img src={userData[localPost.profile_id]?.image || "/images/default-user.jpg"} alt="User Avatar" className={styles.userPhoto} />
+        <img src={userData[localPost.profile_id]?.image || "/default/default-user.jfif"} alt="User Avatar" className={styles.userPhoto} />
         <div className={styles.postInfo}>
           <span className={styles.userName}>
             {userData[localPost.profile_id]?.nickname || `Пользователь ${localPost.profile_id}`}

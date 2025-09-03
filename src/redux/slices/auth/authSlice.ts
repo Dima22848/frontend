@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 import axios from "axios";
+import { DJANGO_URL_API } from "../../api/baseApi";
 
 export interface User {
   id: number;
@@ -46,7 +47,7 @@ export const fetchCurrentUser = createAsyncThunk<User, string>(
   "auth/fetchCurrentUser",
   async (token, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/users/me", {
+      const response = await axios.get(`${DJANGO_URL_API}/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

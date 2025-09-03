@@ -4,6 +4,7 @@ import { fetchMyReviewsAsync, deleteMyReviewAsync } from "../../../redux/slices/
 import { RootState, AppDispatch } from "../../../redux/store";
 import styles from "./ProfileReviews.module.scss";
 import { useNavigate } from "react-router-dom";
+import { DJANGO_URL } from "../../../redux/api/baseApi";
 
 // Маппинг типов алкоголя (названия для фильтра)
 const typeLabels: Record<string, string> = {
@@ -77,7 +78,7 @@ const ProfileReviews: React.FC = () => {
                 review.alcohol_info?.image
                   ? review.alcohol_info.image.startsWith("http")
                     ? review.alcohol_info.image
-                    : `http://localhost:8000${review.alcohol_info.image}`
+                    : `${DJANGO_URL}${review.alcohol_info.image}`
                   : "https://via.placeholder.com/80x80?text=Нет+фото"
               }
               alt={review.alcohol_info?.name || "Товар"}

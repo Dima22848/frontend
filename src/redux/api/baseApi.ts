@@ -3,8 +3,12 @@ import type { BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import { refreshAccessToken } from './auth/authApi'; 
 import { setToken, logout } from '../slices/auth/authSlice';
 
+export const DJANGO_URL = 'https://alcoland-django-react.onrender.com'
+export const DJANGO_URL_API = 'https://alcoland-django-react.onrender.com/api'
+
+
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: 'http://127.0.0.1:8000/api/',
+  baseUrl: DJANGO_URL_API,
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('access_token');
     if (token) {

@@ -34,8 +34,8 @@ const Follows = () => {
   if (!currentUser) return <p>Загрузка профиля...</p>;
   if (users.length === 0) return <p>Загрузка подписок и подписчиков...</p>;
 
-  const followingList = users.filter((user) => currentUser.following.includes(user.id));
-  const followersList = users.filter((user) => currentUser.followers.includes(user.id));
+  const followingList = users.filter((user) => currentUser.following?.includes(user.id));
+  const followersList = users.filter((user) => currentUser.followers?.includes(user.id));
 
   const handleViewProfile = (id: number) => {
     navigate(`/profile/${id}`);

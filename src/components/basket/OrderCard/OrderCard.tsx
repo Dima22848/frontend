@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styles from './OrderCard.module.scss';
+import { DJANGO_URL } from "../../../redux/api/baseApi";
+
 
 interface OrderItem {
   id: number;
@@ -43,7 +45,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, itemsPerPage = 4 }) => {
                   item.product_image
                     ? item.product_image.startsWith("http")
                       ? item.product_image
-                      : `http://localhost:8000${item.product_image}`
+                      : `${DJANGO_URL}${item.product_image}`
                     : "https://via.placeholder.com/80x80?text=Нет+фото"
                 }
                 alt={item.product_name || "Товар"}

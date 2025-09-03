@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithReauth } from "../baseApi"; // путь к обёртке как в newsFeedApi.ts
+import { baseQueryWithReauth } from "../baseApi"; 
 
 export interface ChatParticipant {
   id: number;

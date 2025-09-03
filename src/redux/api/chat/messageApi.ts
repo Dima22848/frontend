@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { DJANGO_URL_API } from "../baseApi";  
 
 // Интерфейс для сообщения
 interface Message {
@@ -14,10 +15,11 @@ interface Message {
   created_at: string;
 }
 
+
 export const messageApi = createApi({
   reducerPath: "messageApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: `${DJANGO_URL_API}`,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("access_token"); // получаем при каждом запросе
       if (token) {
