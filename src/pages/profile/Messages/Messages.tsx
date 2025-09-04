@@ -84,7 +84,7 @@ const Messages: React.FC = () => {
     if (!chatId) return;
 
     const baseUrl = WEBSOCKET_URL.replace(/\/$/, "");
-    const socketUrl = `${baseUrl}/${chatId}/`;
+    const socketUrl = `${baseUrl}${chatId}/`;
 
     socketRef.current = new WebSocket(socketUrl);
     
