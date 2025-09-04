@@ -3,7 +3,7 @@ import { addMessage } from "../slices/chat/messageSlice";
 import { updateChat } from "../slices/chat/chatSlice";
 import { DJANGO_URL } from "../api/baseApi";
 
-export const WEBSOCKET_URL = "wss://alcoland-django-react.onrender.com/ws/chat/";
+export const WEBSOCKET_URL = "wss://alcoland-django-react.onrender.com/ws/chat";
 
 // Интерфейс для WebSocket-действий
 interface WebSocketAction {
