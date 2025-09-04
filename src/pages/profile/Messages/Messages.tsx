@@ -83,10 +83,7 @@ const Messages: React.FC = () => {
   useEffect(() => {
     if (!chatId) return;
 
-    const baseUrl = WEBSOCKET_URL.replace(/\/$/, "");
-    const socketUrl = `${baseUrl}${chatId}/`;
-
-    socketRef.current = new WebSocket(socketUrl);
+    socketRef.current = new WebSocket(`${WEBSOCKET_URL}${chatId}/`);
     
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
